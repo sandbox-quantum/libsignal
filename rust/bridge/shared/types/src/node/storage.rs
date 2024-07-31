@@ -357,6 +357,21 @@ impl NodeSessionStore {
         }
     }
 
+    async fn do_use_identity_key(
+        &mut self,
+    ) -> Result<(), String> {
+        let store_object_shared = self.store_object.clone();
+        JsFuture::get_promise(&self.js_channel, move |cx| {
+            let store_object = store_object_shared.to_inner(cx);
+            let result = call_method(cx, store_object, "_useIdentityKey", [])?;
+            let result = result.downcast_or_throw(cx)?;
+            Ok(result)
+        }).then(|cx, result| match result {
+            Ok(_) => Ok(()),
+            Err(error) => Err(error.to_string(cx).expect("can convert to string").value(cx)),
+        }).await
+    }
+
     async fn do_get_session(&self, name: ProtocolAddress) -> Result<Option<SessionRecord>, String> {
         let store_object_shared = self.store_object.clone();
         JsFuture::get_promise(&self.js_channel, move |cx| {
@@ -440,6 +455,14 @@ impl SessionStore for NodeSessionStore {
         self.do_save_session(name.clone(), record.clone())
             .await
             .map_err(|s| js_error_to_rust("saveSession", s))
+    }
+
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<(), SignalProtocolError> {
+        self.do_use_identity_key()
+            .await
+            .map_err(|s| js_error_to_rust("useIdentityKey", s))
     }
 }
 

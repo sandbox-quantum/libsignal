@@ -362,6 +362,12 @@ impl SessionStore for &FfiSessionStoreStruct {
             "store_session",
         ))
     }
+
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<(), SignalProtocolError> {
+        Ok(())
+    }
 }
 
 type LoadSenderKey = extern "C" fn(

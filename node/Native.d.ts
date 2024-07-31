@@ -70,6 +70,7 @@ export abstract class IdentityKeyStore {
 export abstract class SessionStore {
   _saveSession(addr: ProtocolAddress, record: SessionRecord): Promise<void>;
   _getSession(addr: ProtocolAddress): Promise<SessionRecord | null>;
+  _useIdentityKey(): Promise<void>;
 }
 
 export abstract class PreKeyStore {

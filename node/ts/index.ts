@@ -1139,6 +1139,10 @@ export abstract class SessionStore implements Native.SessionStore {
       return sess._nativeHandle;
     }
   }
+  async _useIdentityKey(): Promise<void> {
+    console.log("We are do the _useIdentityKey thingy");
+    return;
+  }
 
   abstract saveSession(
     name: ProtocolAddress,

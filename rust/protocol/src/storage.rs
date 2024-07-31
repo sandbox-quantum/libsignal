@@ -16,5 +16,5 @@ pub use inmem::{
 };
 pub use traits::{
     Direction, IdentityKeyStore, KyberPreKeyStore, PreKeyStore, ProtocolStore, SenderKeyStore,
-    SessionStore, SignedPreKeyStore,
+    SessionStore, SignedPreKeyStore, ExternalIdentityKey,
 };

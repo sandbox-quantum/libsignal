@@ -212,6 +212,8 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
         their_one_time_prekey_id.map_or_else(|| "<none>".to_string(), |id| id.to_string())
     );
 
+    session_store.use_identity_key().await?;
+
     session.set_unacknowledged_pre_key_message(
         their_one_time_prekey_id,
         bundle.signed_pre_key_id()?,

@@ -546,6 +546,12 @@ impl<'a> SessionStore for JniSessionStore<'a> {
     ) -> Result<(), SignalProtocolError> {
         Ok(self.do_store_session(address, record)?)
     }
+
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<(), SignalProtocolError> {
+        Ok(())
+    }
 }
 
 pub struct JniSenderKeyStore<'a> {

@@ -302,6 +302,12 @@ impl traits::SessionStore for InMemSessionStore {
         self.sessions.insert(address.clone(), record.clone());
         Ok(())
     }
+
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<()> {
+        Ok(())
+    }
 }
 
 /// Reference implementation of [traits::SenderKeyStore].
@@ -499,6 +505,12 @@ impl traits::SessionStore for InMemSignalProtocolStore {
         record: &SessionRecord,
     ) -> Result<()> {
         self.session_store.store_session(address, record).await
+    }
+
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<()> {
+        Ok(())
     }
 }
 

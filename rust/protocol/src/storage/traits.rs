@@ -140,6 +140,9 @@ pub trait SessionStore {
         address: &ProtocolAddress,
         record: &SessionRecord,
     ) -> Result<()>;
+
+    /// Use the identity key.
+    async fn use_identity_key(&mut self) -> Result<()>;
 }
 
 /// Interface for storing sender key records, allowing multiple keys per user.
@@ -160,6 +163,15 @@ pub trait SenderKeyStore {
         sender: &ProtocolAddress,
         distribution_id: Uuid,
     ) -> Result<Option<SenderKeyRecord>>;
+}
+
+/// Interface for IdentityKey crypto interface
+#[async_trait(?Send)]
+pub trait ExternalIdentityKey {
+    /// Use identity key.
+    async fn use_identity_key(
+        &mut self,
+    ) -> Result<()>;
 }
 
 /// Mixes in all the store interfaces defined in this module.
