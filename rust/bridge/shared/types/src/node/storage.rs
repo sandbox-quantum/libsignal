@@ -357,21 +357,6 @@ impl NodeSessionStore {
         }
     }
 
-    async fn do_use_identity_key(
-        &mut self,
-    ) -> Result<(), String> {
-        let store_object_shared = self.store_object.clone();
-        JsFuture::get_promise(&self.js_channel, move |cx| {
-            let store_object = store_object_shared.to_inner(cx);
-            let result = call_method(cx, store_object, "_useIdentityKey", [])?;
-            let result = result.downcast_or_throw(cx)?;
-            Ok(result)
-        }).then(|cx, result| match result {
-            Ok(_) => Ok(()),
-            Err(error) => Err(error.to_string(cx).expect("can convert to string").value(cx)),
-        }).await
-    }
-
     async fn do_get_session(&self, name: ProtocolAddress) -> Result<Option<SessionRecord>, String> {
         let store_object_shared = self.store_object.clone();
         JsFuture::get_promise(&self.js_channel, move |cx| {
@@ -456,14 +441,6 @@ impl SessionStore for NodeSessionStore {
             .await
             .map_err(|s| js_error_to_rust("saveSession", s))
     }
-
-    async fn use_identity_key(
-        &mut self,
-    ) -> Result<(), SignalProtocolError> {
-        self.do_use_identity_key()
-            .await
-            .map_err(|s| js_error_to_rust("useIdentityKey", s))
-    }
 }
 
 pub struct NodeIdentityKeyStore {
@@ -477,6 +454,33 @@ impl NodeIdentityKeyStore {
             js_channel: cx.channel(),
             store_object: Arc::new(store.root(cx)),
         }
+    }
+
+    async fn do_calculate_agreement(
+        &self,
+        our_key: IdentityKeyPair,
+        their_key: PublicKey,
+    ) -> Result<Box<[u8]>, String> {
+        let store_object_shared = self.store_object.clone();
+        JsFuture::get_promise(&self.js_channel, move |cx| {
+            let store_object = store_object_shared.to_inner(cx);
+            let our_key: Handle<JsValue> = our_key.private_key().convert_into(cx)?;
+            let their_key: Handle<JsValue> = their_key.convert_into(cx)?;
+            let result = call_method(cx, store_object, "_calculateAgreement", [our_key, their_key])?;
+            let result = result.downcast_or_throw(cx)?;
+            store_object_shared.finalize(cx);
+            Ok(result)
+        }).then(|cx, result| match result {
+            Ok(value) => {
+                let buffer: Handle<JsBuffer> =  value.downcast(cx)
+                    .map_err(|_| "result must be a buffer")?;
+                Ok(buffer.as_slice(cx).to_vec().into_boxed_slice())
+            }
+            Err(error) => Err(error
+                .to_string(cx)
+                .expect("can convert to string")
+                .value(cx)),
+        }).await
     }
 
     async fn do_get_identity_key(&self) -> Result<PrivateKey, String> {
@@ -626,6 +630,16 @@ impl Finalize for NodeIdentityKeyStore {
 
 #[async_trait(?Send)]
 impl IdentityKeyStore for NodeIdentityKeyStore {
+    async fn calculate_agreement(
+        &self,
+        our_key: IdentityKeyPair,
+        their_key: PublicKey,
+    ) -> Result<Box<[u8]>, SignalProtocolError> {
+        self.do_calculate_agreement(our_key, their_key)
+            .await
+            .map_err(|s| js_error_to_rust("calculateAgreement", s))
+    }
+
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair, SignalProtocolError> {
         let pk = self
             .do_get_identity_key()

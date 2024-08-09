@@ -63,6 +63,10 @@ class InMemoryIdentityKeyStore extends SignalClient.IdentityKeyStore {
     this.localRegistrationId = localRegistrationId ?? 5;
   }
 
+  async calculateAgreement(ourKey: SignalClient.PrivateKey, theirKey: SignalClient.PublicKey): Promise<Buffer> {
+    return Buffer.from([])
+  }
+
   async getIdentityKey(): Promise<SignalClient.PrivateKey> {
     return this.identityKey;
   }

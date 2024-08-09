@@ -189,6 +189,12 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
 
     let our_identity_key_pair = identity_store.get_identity_key_pair().await?;
 
+    let _agreement = identity_store
+        .calculate_agreement(
+            our_identity_key_pair.clone(),
+            their_signed_prekey.clone())
+            .await?;
+
     let mut parameters = AliceSignalProtocolParameters::new(
         our_identity_key_pair,
         our_base_key_pair,
@@ -211,8 +217,6 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
         remote_address,
         their_one_time_prekey_id.map_or_else(|| "<none>".to_string(), |id| id.to_string())
     );
-
-    session_store.use_identity_key().await?;
 
     session.set_unacknowledged_pre_key_message(
         their_one_time_prekey_id,

@@ -9,9 +9,7 @@
 
 use crate::storage::traits;
 use crate::{
-    IdentityKey, IdentityKeyPair, KyberPreKeyId, KyberPreKeyRecord, PreKeyId, PreKeyRecord,
-    ProtocolAddress, Result, SenderKeyRecord, SessionRecord, SignalProtocolError, SignedPreKeyId,
-    SignedPreKeyRecord,
+    IdentityKey, IdentityKeyPair, KyberPreKeyId, KyberPreKeyRecord, PreKeyId, PreKeyRecord, ProtocolAddress, PublicKey, Result, SenderKeyRecord, SessionRecord, SignalProtocolError, SignedPreKeyId, SignedPreKeyRecord
 };
 
 use async_trait::async_trait;
@@ -48,6 +46,15 @@ impl InMemIdentityKeyStore {
 
 #[async_trait(?Send)]
 impl traits::IdentityKeyStore for InMemIdentityKeyStore {
+    async fn calculate_agreement(
+        &self,
+        _our_key: IdentityKeyPair,
+        _their_key: PublicKey,
+    ) -> Result<Box<[u8]>> {
+        Ok(Box::new([]))
+    }
+
+
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair> {
         Ok(self.key_pair)
     }
@@ -302,12 +309,6 @@ impl traits::SessionStore for InMemSessionStore {
         self.sessions.insert(address.clone(), record.clone());
         Ok(())
     }
-
-    async fn use_identity_key(
-        &mut self,
-    ) -> Result<()> {
-        Ok(())
-    }
 }
 
 /// Reference implementation of [traits::SenderKeyStore].
@@ -404,6 +405,15 @@ impl InMemSignalProtocolStore {
 
 #[async_trait(?Send)]
 impl traits::IdentityKeyStore for InMemSignalProtocolStore {
+    async fn calculate_agreement(
+        &self,
+        _our_key: IdentityKeyPair,
+        _their_key: PublicKey,
+    ) -> Result<Box<[u8]>> {
+        Ok(Box::new([]))
+    }
+
+
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair> {
         self.identity_store.get_identity_key_pair().await
     }
@@ -505,12 +515,6 @@ impl traits::SessionStore for InMemSignalProtocolStore {
         record: &SessionRecord,
     ) -> Result<()> {
         self.session_store.store_session(address, record).await
-    }
-
-    async fn use_identity_key(
-        &mut self,
-    ) -> Result<()> {
-        Ok(())
     }
 }
 
