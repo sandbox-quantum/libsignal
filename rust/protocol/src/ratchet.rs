@@ -57,12 +57,16 @@ pub(crate) fn initialize_alice_session<R: Rng + CryptoRng>(
 
     let our_base_private_key = parameters.our_base_key_pair().private_key;
 
-    secrets.extend_from_slice(
-        &parameters
-            .our_identity_key_pair()
-            .private_key()
-            .calculate_agreement(parameters.their_signed_pre_key())?,
-    );
+    if let Some(agreement) = parameters.agreement() {
+        secrets.extend_from_slice(agreement);
+    } else {
+        secrets.extend_from_slice(
+            &parameters
+                .our_identity_key_pair()
+                .private_key()
+                .calculate_agreement(parameters.their_signed_pre_key())?,
+        );
+    }
 
     secrets.extend_from_slice(
         &our_base_private_key.calculate_agreement(parameters.their_identity_key().public_key())?,

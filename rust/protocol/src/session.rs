@@ -189,12 +189,6 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
 
     let our_identity_key_pair = identity_store.get_identity_key_pair().await?;
 
-    let _agreement = identity_store
-        .calculate_agreement(
-            our_identity_key_pair.clone(),
-            their_signed_prekey.clone())
-            .await?;
-
     let mut parameters = AliceSignalProtocolParameters::new(
         our_identity_key_pair,
         our_base_key_pair,
@@ -209,6 +203,14 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
     if let Some(key) = bundle.kyber_pre_key_public()? {
         parameters.set_their_kyber_pre_key(key);
     }
+
+    let agreement = identity_store
+        .calculate_agreement(
+            our_identity_key_pair.clone(),
+            their_signed_prekey.clone())
+            .await?;
+
+    parameters.set_agreement(agreement);
 
     let mut session = ratchet::initialize_alice_session(&parameters, csprng)?;
 

@@ -6,9 +6,9 @@
 use crate::{kem, IdentityKey, IdentityKeyPair, KeyPair, PublicKey};
 
 pub struct AliceSignalProtocolParameters {
+    agreement: Option<Box<[u8]>>,
     our_identity_key_pair: IdentityKeyPair,
     our_base_key_pair: KeyPair,
-
     their_identity_key: IdentityKey,
     their_signed_pre_key: PublicKey,
     their_one_time_pre_key: Option<PublicKey>,
@@ -25,6 +25,7 @@ impl AliceSignalProtocolParameters {
         their_ratchet_key: PublicKey,
     ) -> Self {
         Self {
+            agreement: None,
             our_identity_key_pair,
             our_base_key_pair,
             their_identity_key,
@@ -33,6 +34,10 @@ impl AliceSignalProtocolParameters {
             their_ratchet_key,
             their_kyber_pre_key: None,
         }
+    }
+
+    pub(crate) fn set_agreement(&mut self, agreement: Box<[u8]>) {
+        self.agreement = Some(agreement);
     }
 
     pub fn set_their_one_time_pre_key(&mut self, ec_public: PublicKey) {
@@ -86,6 +91,11 @@ impl AliceSignalProtocolParameters {
     #[inline]
     pub fn their_ratchet_key(&self) -> &PublicKey {
         &self.their_ratchet_key
+    }
+
+    #[inline]
+    pub(crate) fn agreement(&self) -> Option<&Box<[u8]>> {
+        self.agreement.as_ref()
     }
 }
 
