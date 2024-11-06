@@ -1151,6 +1151,13 @@ export abstract class SessionStore implements Native.SessionStore {
 }
 
 export abstract class IdentityKeyStore implements Native.IdentityKeyStore {
+
+  async _calculateAgreement(ourKey: Native.PrivateKey, theirKey: Native.PublicKey): Promise<Buffer> {
+    return this.calculateAgreement(
+      PrivateKey._fromNativeHandle(ourKey),
+      PublicKey._fromNativeHandle(theirKey));
+  }
+
   async _getIdentityKey(): Promise<Native.PrivateKey> {
     const key = await this.getIdentityKey();
     return key._nativeHandle;
@@ -1192,6 +1199,7 @@ export abstract class IdentityKeyStore implements Native.IdentityKeyStore {
     }
   }
 
+  abstract calculateAgreement(ourKey: PrivateKey, theirKey: PublicKey): Promise<Buffer>;
   abstract getIdentityKey(): Promise<PrivateKey>;
   abstract getLocalRegistrationId(): Promise<number>;
   abstract saveIdentity(

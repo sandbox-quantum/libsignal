@@ -55,6 +55,7 @@ interface SealedSenderMultiRecipientMessage {
 }
 
 export abstract class IdentityKeyStore {
+  _calculateAgreement(ourKey: PrivateKey, theirKey: PublicKey): Promise<Buffer>
   _getIdentityKey(): Promise<PrivateKey>;
   _getLocalRegistrationId(): Promise<number>;
   _saveIdentity(name: ProtocolAddress, key: PublicKey): Promise<boolean>;

@@ -14,7 +14,7 @@ use crate::state::{
     KyberPreKeyId, KyberPreKeyRecord, PreKeyId, PreKeyRecord, SessionRecord, SignedPreKeyId,
     SignedPreKeyRecord,
 };
-use crate::{IdentityKey, IdentityKeyPair, ProtocolAddress};
+use crate::{IdentityKey, IdentityKeyPair, ProtocolAddress, PublicKey};
 
 // TODO: consider moving this enum into utils.rs?
 /// Each Signal message can be considered to have exactly two participants, a sender and receiver.
@@ -36,6 +36,13 @@ pub enum Direction {
 /// [TOFU]: https://en.wikipedia.org/wiki/Trust_on_first_use
 #[async_trait(?Send)]
 pub trait IdentityKeyStore {
+    /// Derive diffie-helmmann secret.
+    async fn calculate_agreement(
+        &self,
+        our_key: IdentityKeyPair,
+        their_key: PublicKey,
+    ) -> Result<Box<[u8]>>;
+
     /// Return the single specific identity the store is assumed to represent, with private key.
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair>;
 

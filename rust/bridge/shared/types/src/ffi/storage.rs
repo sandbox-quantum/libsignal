@@ -50,6 +50,14 @@ pub struct FfiIdentityKeyStoreStruct {
 
 #[async_trait(?Send)]
 impl IdentityKeyStore for &FfiIdentityKeyStoreStruct {
+    async fn calculate_agreement(
+        &self,
+        _our_key: IdentityKeyPair,
+        _their_key: PublicKey,
+    ) -> Result<Box<[u8]>, SignalProtocolError> {
+        Ok(Box::new([]))
+    }
+
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair, SignalProtocolError> {
         let mut key = std::ptr::null_mut();
         let result = (self.get_identity_key_pair)(self.ctx, &mut key);

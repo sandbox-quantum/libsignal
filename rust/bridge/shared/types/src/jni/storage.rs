@@ -177,6 +177,14 @@ impl<'a> JniIdentityKeyStore<'a> {
 
 #[async_trait(? Send)]
 impl<'a> IdentityKeyStore for JniIdentityKeyStore<'a> {
+    async fn calculate_agreement(
+        &self,
+        _our_key: IdentityKeyPair,
+        _their_key: PublicKey,
+    ) -> Result<Box<[u8]>, SignalProtocolError> {
+        Ok(Box::new([]))
+    }
+
     async fn get_identity_key_pair(&self) -> Result<IdentityKeyPair, SignalProtocolError> {
         Ok(self.do_get_identity_key_pair()?)
     }
