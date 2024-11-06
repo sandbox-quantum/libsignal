@@ -203,6 +203,14 @@ pub async fn process_prekey_bundle<R: Rng + CryptoRng>(
         parameters.set_their_kyber_pre_key(key);
     }
 
+    let agreement = identity_store
+        .calculate_agreement(
+            our_identity_key_pair.clone(),
+            their_signed_prekey.clone())
+            .await?;
+
+    parameters.set_agreement(agreement);
+
     let mut session = ratchet::initialize_alice_session(&parameters, csprng)?;
 
     log::info!(
